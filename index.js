@@ -27,7 +27,8 @@ module.exports = function(content) {
     var root,
         parseMacros = true,
         attributes = ['img:src'],
-        parseDynamicRoutes = false;
+        parseDynamicRoutes = false,
+        registerTemplate = false;
 
     // Parse arguments
     var query = this.query instanceof Object ? this.query : loaderUtils.parseQuery(this.query);
@@ -52,6 +53,17 @@ module.exports = function(content) {
         // Check if dynamic routes must be parsed
         if (query.parseDynamicRoutes !== undefined) {
             parseDynamicRoutes = !!query.parseDynamicRoutes;
+        }
+
+        // Check if template should be registered under Handlebars.templates
+        if (query.registerTemplate !== undefined) {
+            if (query.registerTemplate === true) {
+                registerTemplate = this.resource
+            } else {
+                // Treat registerTemplate as regexp, use first subgroup or whole match as a name
+                registerTemplate = this.resource.match(new RegExp(query.registerTemplate))
+                registerTemplate = registerTemplate && (registerTemplate[1] || registerTemplate[0])
+            }
         }
     }
 
@@ -89,6 +101,7 @@ module.exports = function(content) {
     source = attributesContext.resolveAttributes(source);
 
     callback(null, 'var Handlebars = require(\'' + require.resolve('handlebars/runtime').replace(/\\/g, '/') + '\');\n' +
+        (registerTemplate ? '(Handlebars.templates || (Handlebars.templates = {}))[' + JSON.stringify(registerTemplate) + '] = ' : '') +
         'module.exports = (Handlebars[\'default\'] || Handlebars).template(' + source + ');');
 };
 
