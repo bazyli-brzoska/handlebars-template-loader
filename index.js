@@ -27,8 +27,8 @@ module.exports = function(content) {
   var root,
       parseMacros = true,
       attributes = ['img:src'],
-      parseDynamicRoutes = false,,
-      registerTemplate = false
+      parseDynamicRoutes = false,
+      registerTemplate = false,
       runtimePath = require.resolve('handlebars/runtime').replace(/\\/g, '/');
 
   // Parse arguments
